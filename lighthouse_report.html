@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lighthouse Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,700,0,0&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F2F5F0;
+      --block: #DEE2E6;
+      --accent: #DD1234;
+      --text: #1c1c1c;
+      --muted: #4a4a4a;
+      --line: #c7ccd1;
+      --radius: 14px;
+      --font: "Noto Sans", sans-serif;
+      --good: #16a34a;
+      --avg:  #d97706;
+      --poor: #DD1234;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Loading ── */
+    #lhr-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      gap: 16px;
+    }
+    .lhr-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--block);
+      border-top: 3px solid var(--accent);
+      border-radius: 50%;
+      animation: lhr-spin 0.9s linear infinite;
+    }
+    @keyframes lhr-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .lhr-loading-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    #lhr-status        { font-size: 11px; color: var(--muted); }
+
+    /* ── Error ── */
+    .lhr-error {
+      text-align: center;
+      padding: 48px 32px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .lhr-error-icon   { font-size: 48px; margin-bottom: 16px; }
+    .lhr-error-msg    { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .lhr-error-sub    { font-size: 12px; color: var(--muted); line-height: 1.55; margin-bottom: 14px; }
+    .lhr-error-detail { font-size: 11px; color: var(--accent); font-family: monospace; word-break: break-all; }
+
+    /* ── Root ── */
+    #lhr-root { display: none; max-width: 960px; margin: 0 auto; padding: 24px 20px 64px 20px; }
+
+    /* ── Header ── */
+    .lhr-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .lhr-header-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+    .lhr-logo {
+      font-family: 'Material Symbols Outlined';
+      font-size: 36px;
+      color: var(--accent);
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .lhr-title-wrap { min-width: 0; }
+    .lhr-title    { font-size: 22px; font-weight: 700; line-height: 1.2; margin-bottom: 3px; }
+    .lhr-url      { font-size: 11px; color: var(--muted); word-break: break-all; display: block; margin-top: 3px; }
+    .lhr-url-link {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .lhr-url-link:hover { text-decoration: underline; }
+    .lhr-gen-time { font-size: 10px; color: var(--muted); margin-top: 5px; }
+    .lhr-header-btns { display: flex; gap: 8px; align-items: flex-start; flex-shrink: 0; margin-top: 2px; }
+    .lhr-btn {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font);
+      padding: 8px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .lhr-btn:hover { background: var(--block); }
+    .lhr-btn.primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+    }
+    .lhr-btn.primary:hover { opacity: 0.88; background: var(--accent); }
+
+    /* ── Dual Score Card ── */
+    .lhr-score-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .lhr-score-half {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .lhr-score-half + .lhr-score-half {
+      border-left: 1px solid var(--line);
+      padding-left: 24px;
+    }
+    .lhr-gauge-wrap {
+      position: relative;
+      flex-shrink: 0;
+      width: 96px;
+      height: 96px;
+    }
+    .lhr-gauge-svg { width: 96px; height: 96px; }
+    .lhr-gauge-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .lhr-gauge-num   { font-size: 26px; font-weight: 700; line-height: 1; }
+    .lhr-gauge-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .lhr-score-info {}
+    .lhr-score-strategy {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .lhr-legend { display: flex; flex-direction: column; gap: 4px; }
+    .lhr-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .lhr-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Section ── */
+    .lhr-section {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .lhr-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--line);
+      gap: 8px;
+    }
+    .lhr-section-head-left { display: flex; align-items: center; gap: 8px; }
+    .lhr-section-title     { font-size: 13px; font-weight: 700; }
+    .lhr-section-count     { font-size: 11px; color: var(--muted); }
+    .lhr-section-toggle {
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--muted);
+      border: none;
+      background: none;
+      padding: 0 4px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .lhr-section-body   { padding: 16px 20px; }
+    .lhr-collapsed .lhr-section-body { display: none; }
+
+    /* ── Metrics Comparison Table ── */
+    .lhr-metrics-table { width: 100%; border-collapse: collapse; }
+    .lhr-metrics-table th,
+    .lhr-metrics-table td {
+      padding: 9px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+    }
+    .lhr-metrics-table tr:last-child td { border-bottom: none; }
+    .lhr-metrics-table th {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      background: #f8fafc;
+    }
+    .lhr-metrics-table th:first-child { width: 46%; }
+    .lhr-metrics-table th:not(:first-child) { width: 27%; }
+    .lhr-metric-name-cell { font-size: 12px; color: var(--muted); }
+    .lhr-metric-val-cell  {
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .lhr-val-good { color: var(--good); }
+    .lhr-val-avg  { color: var(--avg);  }
+    .lhr-val-poor { color: var(--poor); }
+    .lhr-val-na   { color: var(--line); }
+
+    /* ── Two-column audit layout ── */
+    .lhr-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+    .lhr-col { padding: 0; }
+    .lhr-col + .lhr-col { border-left: 1px solid var(--line); padding-left: 16px; }
+    .lhr-col-head {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    /* ── Audit items ── */
+    .lhr-audit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .lhr-audit-item:last-child { border-bottom: none; }
+    .lhr-audit-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+    .lhr-audit-title { font-size: 11px; font-weight: 700; color: var(--text); }
+    .lhr-audit-val   { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .lhr-empty { font-size: 11px; color: var(--muted); font-style: italic; padding: 4px 0; }
+
+    /* Score colour helpers */
+    .lhr-dot-good    { background: var(--good); }
+    .lhr-dot-avg     { background: var(--avg);  }
+    .lhr-dot-poor    { background: var(--poor); }
+    .lhr-dot-neutral { background: var(--line); }
+
+    /* ── Footer ── */
+    .lhr-footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-size: 10px;
+      color: var(--line);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="lhr-loading">
+    <div class="lhr-spinner"></div>
+    <div class="lhr-loading-title">Running Lighthouse Analysis…</div>
+    <div id="lhr-status">Fetching Desktop &amp; Mobile scores…</div>
+  </div>
+
+  <div id="lhr-root">
+
+    <!-- Header -->
+    <div class="lhr-header">
+      <div class="lhr-header-left">
+        <span class="lhr-logo">keyboard_command_key</span>
+        <div class="lhr-title-wrap">
+          <h1 class="lhr-title">Lighthouse Performance</h1>
+          <a class="lhr-url lhr-url-link" id="lhr-url" href="#" target="_blank" rel="noopener noreferrer">—</a>
+          <div class="lhr-gen-time" id="lhr-gen-time"></div>
+        </div>
+      </div>
+      <div class="lhr-header-btns">
+        <button class="lhr-btn" id="lhr-reload" type="button">Reload</button>
+        <button class="lhr-btn primary" id="lhr-save" type="button">SAVE HTML</button>
+      </div>
+    </div>
+
+    <!-- Dual Score Card -->
+    <div class="lhr-score-card">
+      <!-- Desktop -->
+      <div class="lhr-score-half">
+        <div class="lhr-gauge-wrap">
+          <svg class="lhr-gauge-svg" id="lhr-gauge-desktop" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg"></svg>
+          <div class="lhr-gauge-inner">
+            <div class="lhr-gauge-num" id="lhr-num-desktop">—</div>
+            <div class="lhr-gauge-label">Desktop</div>
+          </div>
+        </div>
+        <div class="lhr-score-info">
+          <div class="lhr-score-strategy">Desktop</div>
+          <div class="lhr-legend">
+            <div class="lhr-legend-item"><div class="lhr-legend-dot" style="background:var(--good)"></div>90–100 Good</div>
+            <div class="lhr-legend-item"><div class="lhr-legend-dot" style="background:var(--avg)"></div>50–89 Needs Improvement</div>
+            <div class="lhr-legend-item"><div class="lhr-legend-dot" style="background:var(--poor)"></div>0–49 Poor</div>
+          </div>
+        </div>
+      </div>
+      <!-- Mobile -->
+      <div class="lhr-score-half">
+        <div class="lhr-gauge-wrap">
+          <svg class="lhr-gauge-svg" id="lhr-gauge-mobile" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg"></svg>
+          <div class="lhr-gauge-inner">
+            <div class="lhr-gauge-num" id="lhr-num-mobile">—</div>
+            <div class="lhr-gauge-label">Mobile</div>
+          </div>
+        </div>
+        <div class="lhr-score-info">
+          <div class="lhr-score-strategy">Mobile</div>
+          <div class="lhr-legend">
+            <div class="lhr-legend-item"><div class="lhr-legend-dot" style="background:var(--good)"></div>90–100 Good</div>
+            <div class="lhr-legend-item"><div class="lhr-legend-dot" style="background:var(--avg)"></div>50–89 Needs Improvement</div>
+            <div class="lhr-legend-item"><div class="lhr-legend-dot" style="background:var(--poor)"></div>0–49 Poor</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics Comparison -->
+    <div class="lhr-section">
+      <div class="lhr-section-head">
+        <div class="lhr-section-head-left">
+          <span class="lhr-section-title">Core Web Vitals &amp; Metrics</span>
+        </div>
+        <button class="lhr-section-toggle" type="button">&#9660;</button>
+      </div>
+      <div class="lhr-section-body">
+        <table class="lhr-metrics-table" id="lhr-metrics-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Desktop</th>
+              <th>Mobile</th>
+            </tr>
+          </thead>
+          <tbody id="lhr-metrics-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Opportunities -->
+    <div class="lhr-section lhr-collapsed">
+      <div class="lhr-section-head">
+        <div class="lhr-section-head-left">
+          <span class="lhr-section-title">Opportunities</span>
+          <span class="lhr-section-count" id="lhr-opp-count"></span>
+        </div>
+        <button class="lhr-section-toggle" type="button">&#9654;</button>
+      </div>
+      <div class="lhr-section-body">
+        <div class="lhr-two-col">
+          <div class="lhr-col">
+            <div class="lhr-col-head">Desktop</div>
+            <div id="lhr-opp-desktop"></div>
+          </div>
+          <div class="lhr-col">
+            <div class="lhr-col-head">Mobile</div>
+            <div id="lhr-opp-mobile"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diagnostics (collapsed) -->
+    <div class="lhr-section lhr-collapsed">
+      <div class="lhr-section-head">
+        <div class="lhr-section-head-left">
+          <span class="lhr-section-title">Diagnostics</span>
+          <span class="lhr-section-count" id="lhr-diag-count"></span>
+        </div>
+        <button class="lhr-section-toggle" type="button">&#9654;</button>
+      </div>
+      <div class="lhr-section-body">
+        <div class="lhr-two-col">
+          <div class="lhr-col">
+            <div class="lhr-col-head">Desktop</div>
+            <div id="lhr-diag-desktop"></div>
+          </div>
+          <div class="lhr-col">
+            <div class="lhr-col-head">Mobile</div>
+            <div id="lhr-diag-mobile"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Passed (collapsed) -->
+    <div class="lhr-section lhr-collapsed">
+      <div class="lhr-section-head">
+        <div class="lhr-section-head-left">
+          <span class="lhr-section-title">Passed Audits</span>
+          <span class="lhr-section-count" id="lhr-pass-count"></span>
+        </div>
+        <button class="lhr-section-toggle" type="button">&#9654;</button>
+      </div>
+      <div class="lhr-section-body">
+        <div class="lhr-two-col">
+          <div class="lhr-col">
+            <div class="lhr-col-head">Desktop</div>
+            <div id="lhr-pass-desktop"></div>
+          </div>
+          <div class="lhr-col">
+            <div class="lhr-col-head">Mobile</div>
+            <div id="lhr-pass-mobile"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lhr-footer">Lighthouse Report &nbsp;&middot;&nbsp; Digital Detective V1.6 &nbsp;&middot;&nbsp; Developed by Camilo Mello &nbsp;&middot;&nbsp; Powered by Google PageSpeed Insights</div>
+
+  </div>
+
+  <script src="lighthouse_report.js"></script>
+</body>
+</html>

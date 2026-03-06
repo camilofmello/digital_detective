@@ -1,0 +1,58 @@
+{
+  "manifest_version": 3,
+  "name": "Digital Detective v1.6",
+  "version": "1.6",
+  "description": "Inspect pages, run SEO and Lighthouse audits, extract design systems, and blueprint components.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "downloads",
+    "storage",
+    "tabs",
+    "declarativeNetRequest"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https: http:;"
+  },
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "blueprinter.html",
+        "report_utils.js",
+        "report_viewer.html",
+        "report_viewer.js",
+        "match_analysis.html",
+        "match_analysis.js",
+        "lighthouse_report.html",
+        "lighthouse_report.js",
+        "seo_report.html",
+        "seo_report.js"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

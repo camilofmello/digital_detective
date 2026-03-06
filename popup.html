@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Digital Detective</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,700,0,0&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F2F5F0;
+      --block: #DEE2E6;
+      --accent: #DD1234;
+      --text: #1c1c1c;
+      --muted: #4a4a4a;
+      --line: #c7ccd1;
+      --radius: 14px;
+      --font: "Noto Sans", sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 570px;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      padding: 16px;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .header-actions {
+      margin-left: auto;
+    }
+    .help-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .logo {
+      font-family: 'Material Symbols Outlined';
+      font-size: 36px;
+      color: var(--accent);
+      line-height: 1;
+      user-select: none;
+    }
+    .header-text h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .header-text p {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .tool-btn {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      min-height: 44px;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .tool-btn:hover {
+      border-color: var(--accent);
+      box-shadow: 0 2px 10px rgba(221,18,52,0.12);
+    }
+    .tool-btn.is-active {
+      border-color: var(--accent);
+      background: #fff4f6;
+      box-shadow: 0 2px 10px rgba(221,18,52,0.14);
+    }
+    .tool-btn::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      transform: translateX(-50%);
+      background: #111;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 400;
+      line-height: 1.35;
+      padding: 6px 8px;
+      border-radius: 8px;
+      width: max-content;
+      max-width: 220px;
+      text-align: center;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.12s ease;
+      z-index: 20;
+      white-space: normal;
+    }
+    .tool-btn:hover::after {
+      opacity: 1;
+      visibility: visible;
+    }
+    .tool-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      color: var(--accent);
+      font-family: 'Material Symbols Outlined';
+      font-size: 22px;
+      font-variation-settings: 'FILL' 0, 'wght' 700, 'GRAD' 0, 'opsz' 24;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .tool-desc,
+    .tool-arrow { display: none; }
+    .tool-info { flex: 1; min-width: 0; }
+    .tool-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0;
+      line-height: 1.2;
+    }
+    .tool-stage {
+      margin-bottom: 8px;
+    }
+    .tool-subpanel {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .quick-panel {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .quick-panel.is-open { display: block; }
+    .quick-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .quick-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .quick-actions {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .quick-field {
+      max-width: 460px;
+      margin: 10px auto 0 auto;
+      text-align: left;
+    }
+    .quick-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .quick-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-family: var(--font);
+      outline: none;
+      background: #fff;
+      color: var(--text);
+    }
+    .quick-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(221,18,52,0.12);
+    }
+    .quick-textarea {
+      width: 100%;
+      min-height: 120px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 11px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      outline: none;
+      background: #fff;
+      color: var(--text);
+      resize: vertical;
+    }
+    .quick-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(221,18,52,0.12);
+    }
+    .quick-subnote {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.35;
+    }
+    .quick-hidden { display: none; }
+    .status {
+      display: none;
+      background: var(--block);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      align-items: center;
+      gap: 8px;
+    }
+    .status.is-active { display: flex; }
+    .status.is-error { background: #fff0f0; color: var(--accent); }
+    .status.is-success { background: #f0faf0; color: #16a34a; }
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--block);
+      border-top: 2px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .footer {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      font-size: 10px;
+      color: var(--line);
+      text-align: center;
+    }
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .modal.is-open { display: flex; }
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      position: relative;
+      z-index: 2;
+      background: #fff;
+      border-radius: 16px;
+      width: min(92vw, 360px);
+      max-height: 90vh;
+      overflow: auto;
+      padding: 16px 16px 14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .modal-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .modal-close {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .help-section {
+      margin-bottom: 12px;
+    }
+    .help-section h3 {
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .help-section p {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-bottom: 6px;
+    }
+    .help-list {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-left: 14px;
+    }
+    .help-list li { margin-bottom: 6px; }
+
+    /* ── Script Panel ── */
+    .script-panel {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .script-panel.is-open { display: block; }
+    .script-panel-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .script-panel-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .script-search {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      outline: none;
+      margin-bottom: 10px;
+    }
+    .script-search:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(221,18,52,0.12);
+    }
+    .script-status {
+      display: none;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .script-status.is-active { display: block; }
+    .script-list {
+      display: grid;
+      gap: 10px;
+    }
+    .script-item {
+      border: 1px solid #e2e4e7;
+      border-radius: 10px;
+      padding: 10px;
+      background: #fafafa;
+    }
+    .script-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: space-between;
+    }
+    .script-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .script-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .script-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .script-btn.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .script-btn.success {
+      background: #16a34a;
+      color: #fff;
+      border-color: #16a34a;
+    }
+    .script-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ── Screenshot Panel ── */
+    .shot-panel {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .shot-panel.is-open { display: block; }
+    .shot-panel-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .shot-panel-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .shot-actions {
+      display: grid;
+      gap: 8px;
+    }
+    .shot-btn {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .shot-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .shot-desc {
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .shot-status {
+      display: none;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    .shot-status.is-active { display: block; }
+
+    /* ── Event Panel ── */
+    .event-panel {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .event-panel.is-open { display: block; }
+    .event-panel-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .event-panel-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .event-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .script-btn.danger {
+      background: #dc2626;
+      color: #fff;
+      border-color: #dc2626;
+    }
+    .event-status {
+      display: none;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .event-status.is-active { display: block; }
+    .event-filter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .event-filter label {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .event-filter select {
+      flex: 1;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      outline: none;
+      background: #fff;
+    }
+    .event-list {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .event-item {
+      border: 1px solid #e2e4e7;
+      border-radius: 10px;
+      padding: 8px;
+      background: #fafafa;
+      cursor: pointer;
+    }
+    .event-item-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .event-item-meta {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .event-payload {
+      display: none;
+      border: 1px dashed #d4d7dc;
+      border-radius: 10px;
+      padding: 8px;
+      background: #fff;
+      margin-top: 8px;
+    }
+    .event-payload.is-open { display: block; }
+    .event-detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      gap: 8px;
+    }
+    .event-detail-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .event-detail pre {
+      margin: 0;
+      font-size: 10px;
+      color: #0f172a;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ── Match Analysis Panel ── */
+    .match-panel {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .match-panel.is-open { display: block; }
+    .match-panel-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .match-panel-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .match-field {
+      margin-bottom: 8px;
+    }
+    .match-field-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+    .match-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-family: var(--font);
+      outline: none;
+      background: #fff;
+      color: var(--text);
+    }
+    .match-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(221,18,52,0.12);
+    }
+    .match-actions {
+      margin-top: 10px;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .match-status {
+      display: none;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    .match-status.is-active { display: block; }
+    .match-status.is-error  { color: var(--accent); }
+
+    /* ── SEO Panel ── */
+    .seo-panel {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .seo-panel.is-open { display: block; }
+    .seo-panel-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .seo-panel-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .seo-url-preview {
+      font-size: 10px;
+      color: var(--muted);
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin-bottom: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: monospace;
+    }
+    .seo-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .seo-status {
+      display: none;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    .seo-status.is-active { display: block; }
+    .seo-status.is-error  { color: var(--accent); }
+
+    /* ── Lighthouse Panel ── */
+    .lh-panel {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .lh-panel.is-open { display: block; }
+    .lh-panel-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .lh-panel-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .lh-url-preview {
+      font-size: 10px;
+      color: var(--muted);
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin-bottom: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: monospace;
+    }
+    .lh-key-field {
+      margin-bottom: 10px;
+    }
+    .lh-key-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .lh-key-tag {
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .lh-key-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-family: monospace;
+      outline: none;
+      background: #fff;
+      color: var(--text);
+    }
+    .lh-key-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(221,18,52,0.12);
+    }
+    .lh-key-hint {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .lh-key-hint a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .lh-key-hint a:hover {
+      text-decoration: underline;
+    }
+    .lh-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .lh-status {
+      display: none;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    .lh-status.is-active { display: block; }
+    .lh-status.is-error  { color: var(--accent); }
+
+    /* Global overlay messages */
+    .status,
+    .shot-status,
+    .event-status,
+    .script-status,
+    .match-status,
+    .seo-status,
+    .lh-status {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      z-index: 10001;
+      margin: 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #b80f2c;
+      background: #dd1234;
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22);
+      pointer-events: none;
+    }
+    .status.is-error,
+    .status.is-success,
+    .shot-status.is-error,
+    .shot-status.is-success,
+    .event-status.is-error,
+    .event-status.is-success,
+    .script-status.is-error,
+    .script-status.is-success,
+    .match-status.is-error,
+    .match-status.is-success,
+    .seo-status.is-error,
+    .seo-status.is-success,
+    .lh-status.is-error,
+    .lh-status.is-success {
+      border-color: #b80f2c;
+      background: #dd1234;
+      color: #fff;
+    }
+    .status .spinner {
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top: 2px solid #fff;
+    }
+
+    .tool-subpanel .shot-panel-title,
+    .tool-subpanel .shot-panel-note,
+    .tool-subpanel .event-panel-title,
+    .tool-subpanel .event-panel-note,
+    .tool-subpanel .match-panel-title,
+    .tool-subpanel .match-panel-note,
+    .tool-subpanel .seo-panel-title,
+    .tool-subpanel .seo-panel-note,
+    .tool-subpanel .lh-panel-title,
+    .tool-subpanel .lh-panel-note,
+    .tool-subpanel .script-panel-title,
+    .tool-subpanel .script-panel-note {
+      text-align: center;
+    }
+    .tool-subpanel .shot-actions,
+    .tool-subpanel .event-toggle,
+    .tool-subpanel .match-actions,
+    .tool-subpanel .seo-actions,
+    .tool-subpanel .lh-actions {
+      justify-content: center;
+    }
+    .tool-subpanel .match-field,
+    .tool-subpanel .event-filter,
+    .tool-subpanel .lh-key-field {
+      max-width: 460px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+    }
+    .tool-subpanel .match-input,
+    .tool-subpanel .lh-key-input,
+    .tool-subpanel .script-search,
+    .tool-subpanel .lh-url-preview,
+    .tool-subpanel .seo-url-preview {
+      max-width: 460px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span class="logo">keyboard_command_key</span>
+    <div class="header-text">
+      <h1>Digital Detective</h1>
+      <p>Web intelligence toolkit</p>
+    </div>
+    <div class="header-actions">
+      <button class="help-btn" id="help-btn" type="button" aria-label="Help">
+        <span class="material-symbols-outlined">help</span>
+      </button>
+    </div>
+  </div>
+
+    <div class="tool-grid">
+    <button class="tool-btn" id="btn-color-picker" type="button" data-tooltip="Pick any color and copy its HEX value.">
+      <span class="tool-icon" aria-hidden="true">colorize</span>
+      <div class="tool-info"><div class="tool-title">Color Picker</div></div>
+    </button>
+    <button class="tool-btn" id="btn-screenshot" type="button" data-tooltip="Capture component, visible page, or full page.">
+      <span class="tool-icon" aria-hidden="true">photo_camera</span>
+      <div class="tool-info"><div class="tool-title">Screenshot</div></div>
+    </button>
+    <button class="tool-btn" id="btn-picker" type="button" data-tooltip="Select an element and copy its outerHTML.">
+      <span class="tool-icon" aria-hidden="true">select_all</span>
+      <div class="tool-info"><div class="tool-title">Element Picker</div></div>
+    </button>
+    <button class="tool-btn" id="btn-ds" type="button" data-tooltip="Extract the full design system from this page.">
+      <span class="tool-icon" aria-hidden="true">palette</span>
+      <div class="tool-info"><div class="tool-title">DS Extractor</div></div>
+    </button>
+    <button class="tool-btn" id="btn-blueprinter" type="button" data-tooltip="Blueprint any component from its HTML.">
+      <span class="tool-icon" aria-hidden="true">grid_view</span>
+      <div class="tool-info"><div class="tool-title">Component Blueprinter</div></div>
+    </button>
+    <button class="tool-btn" id="btn-match" type="button" data-tooltip="Compare two pages and detect visual differences.">
+      <span class="tool-icon" aria-hidden="true">compare</span>
+      <div class="tool-info"><div class="tool-title">Match Analysis</div></div>
+    </button>
+    <button class="tool-btn" id="btn-lighthouse" type="button" data-tooltip="Run a performance analysis on this page.">
+      <span class="tool-icon" aria-hidden="true">speed</span>
+      <div class="tool-info"><div class="tool-title">Lighthouse Audit</div></div>
+    </button>
+    <button class="tool-btn" id="btn-seo" type="button" data-tooltip="Audit on-page SEO signals and get a scored report.">
+      <span class="tool-icon" aria-hidden="true">manage_search</span>
+      <div class="tool-info"><div class="tool-title">SEO Analysis</div></div>
+    </button>
+    <button class="tool-btn" id="btn-event-tracker" type="button" data-tooltip="Identify and inspect events fired from the page.">
+      <span class="tool-icon" aria-hidden="true">track_changes</span>
+      <div class="tool-info"><div class="tool-title">Event Tracker</div></div>
+    </button>
+    <button class="tool-btn" id="btn-script-finder" type="button" data-tooltip="Discover and disable scripts running on this page.">
+      <span class="tool-icon" aria-hidden="true">code</span>
+      <div class="tool-info"><div class="tool-title">Script Finder</div></div>
+    </button>
+  </div>
+
+  <div class="tool-stage">
+    <div class="quick-panel tool-subpanel" id="color-panel">
+      <div class="quick-title">Color Picker</div>
+      <div class="quick-note">Start the picker and click on the page to copy the selected HEX color.</div>
+      <div class="quick-actions">
+        <button class="script-btn primary" id="color-start" type="button">Start Color Picker</button>
+      </div>
+    </div>
+
+    <div class="shot-panel tool-subpanel" id="shot-panel">
+      <div class="shot-panel-title">Screenshot Capture</div>
+      <div class="shot-panel-note">Choose how you want to capture the page.</div>
+      <div class="shot-actions">
+        <button class="shot-btn" id="shot-component" type="button">
+          <div class="shot-title">Component</div>
+          <div class="shot-desc">Take a screenshot of the component by selecting its block.</div>
+        </button>
+        <button class="shot-btn" id="shot-visible" type="button">
+          <div class="shot-title">Visible Page</div>
+          <div class="shot-desc">Capture only the visible area of the page.</div>
+        </button>
+        <button class="shot-btn" id="shot-full" type="button">
+          <div class="shot-title">Full Page</div>
+          <div class="shot-desc">Stop using your mouse for a complete page screenshot.</div>
+        </button>
+      </div>
+      <div class="shot-status" id="shot-status">Preparing capture...</div>
+    </div>
+
+    <div class="quick-panel tool-subpanel" id="picker-panel">
+      <div class="quick-title">Element Picker</div>
+      <div class="quick-note">Activate picker mode and click any element on the page to copy its outerHTML.</div>
+      <div class="quick-actions">
+        <button class="script-btn primary" id="picker-start" type="button">Start Element Picker</button>
+      </div>
+    </div>
+
+    <div class="quick-panel tool-subpanel" id="ds-panel">
+      <div class="quick-title">DS Extractor</div>
+      <div class="quick-note">Generate a design system report from the full page or from a pasted component HTML.</div>
+      <div class="quick-actions">
+        <button class="script-btn primary" id="ds-run-page" type="button">Full Page</button>
+        <button class="script-btn" id="ds-mode-element" type="button">Selected Element</button>
+      </div>
+      <div class="quick-field quick-hidden" id="ds-html-wrap">
+        <div class="quick-label">Component HTML</div>
+        <textarea class="quick-textarea" id="ds-html" placeholder="Paste HTML here"></textarea>
+        <div class="quick-subnote">Tip: use Element Picker to copy the selected element outerHTML.</div>
+        <div class="quick-actions" style="margin-top: 8px;">
+          <button class="script-btn" id="ds-cancel-element" type="button">Cancel</button>
+          <button class="script-btn primary" id="ds-run-html" type="button">Generate Component DS</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-panel tool-subpanel" id="bluep-panel">
+      <div class="quick-title">Component Blueprinter</div>
+      <div class="quick-note">Enter source URL and paste component HTML to generate the blueprint report.</div>
+      <div class="quick-field">
+        <div class="quick-label">Source URL</div>
+        <input class="quick-input" id="bluep-url" type="url" placeholder="https://www.example.com/page" />
+      </div>
+      <div class="quick-field">
+        <div class="quick-label">Component HTML</div>
+        <textarea class="quick-textarea" id="bluep-html" placeholder="Paste HTML here"></textarea>
+        <div class="quick-subnote">Tip: use Element Picker to copy the component outerHTML.</div>
+      </div>
+      <div class="quick-actions" style="margin-top: 10px;">
+        <button class="script-btn primary" id="bluep-generate" type="button">Generate Blueprint</button>
+      </div>
+    </div>
+
+    <div class="match-panel tool-subpanel" id="match-panel">
+      <div class="match-panel-title">Match Analysis</div>
+      <div class="match-panel-note">Enter two URLs to compare their design and generate a detailed visual diff report.</div>
+      <div class="match-field">
+        <div class="match-field-label">URL A - Reference</div>
+        <input class="match-input" id="match-url-a" type="url" placeholder="https://reference-site.com" />
+      </div>
+      <div class="match-field">
+        <div class="match-field-label">URL B - Variant</div>
+        <input class="match-input" id="match-url-b" type="url" placeholder="https://variant-site.com" />
+      </div>
+      <div class="match-actions">
+        <button class="script-btn primary" id="match-analyse" type="button" disabled>Analyse</button>
+      </div>
+      <div class="match-status" id="match-status"></div>
+    </div>
+
+    <div class="lh-panel tool-subpanel" id="lh-panel">
+      <div class="lh-panel-title">Lighthouse Performance</div>
+      <div class="lh-panel-note">Analyse this page using Google PageSpeed Insights. Only works on public URLs.</div>
+      <div class="lh-url-preview" id="lh-url-preview">-</div>
+      <div class="lh-key-field">
+        <div class="lh-key-label">Google API Key <span class="lh-key-tag">recommended</span></div>
+        <input class="lh-key-input" id="lh-api-key" type="password" placeholder="AIzaSy..." autocomplete="off" />
+        <div class="lh-key-hint">Free key from <a href="https://console.cloud.google.com/apis/credentials" target="_blank" id="lh-key-link">Google Cloud Console</a> -> Credentials -> Create API Key. Enables 25,000 requests/day.</div>
+      </div>
+      <div class="lh-actions">
+        <button class="script-btn primary" id="lh-run" type="button">Run Lighthouse</button>
+      </div>
+      <div class="lh-status" id="lh-status"></div>
+    </div>
+
+    <div class="seo-panel tool-subpanel" id="seo-panel">
+      <div class="seo-panel-title">SEO Analysis</div>
+      <div class="seo-panel-note">Inspect this page for on-page SEO signals, score it across 5 pillars, and get a prioritised report. Works on any accessible page.</div>
+      <div class="seo-url-preview" id="seo-url-preview">-</div>
+      <div class="seo-actions">
+        <button class="script-btn primary" id="seo-run" type="button">Run SEO Analysis</button>
+      </div>
+      <div class="seo-status" id="seo-status"></div>
+    </div>
+
+    <div class="event-panel tool-subpanel" id="event-panel">
+      <div class="event-panel-title">Event Tracker</div>
+      <div class="event-panel-note">Track Segment/Rudderstack events and copy their payloads.</div>
+      <div class="event-toggle">
+        <button class="script-btn success" id="event-activate" type="button">Activate</button>
+        <button class="script-btn danger" id="event-deactivate" type="button">Deactivate</button>
+      </div>
+      <div class="event-filter">
+        <label for="event-filter">Source</label>
+        <select id="event-filter">
+          <option value="all">All sources</option>
+          <option value="segment" selected>Segment</option>
+          <option value="rudderstack">Rudderstack</option>
+          <option value="network">Network</option>
+          <option value="page">Page</option>
+        </select>
+      </div>
+      <div class="event-status" id="event-status">Listening for events...</div>
+      <div class="event-list" id="event-list"></div>
+    </div>
+
+    <div class="script-panel tool-subpanel" id="script-panel">
+      <div class="script-panel-title">Active Scripts</div>
+      <div class="script-panel-note">Disable external scripts and reload the page to troubleshoot.</div>
+      <input class="script-search" id="script-search" type="text" placeholder="Search scripts..." />
+      <div class="script-status" id="script-status">Scanning scripts...</div>
+      <div class="script-list" id="script-list"></div>
+    </div>
+  </div>
+<div class="status" id="status">
+    <div class="spinner" id="spinner"></div>
+    <span id="status-text">Extracting design system...</span>
+  </div>
+
+  <div class="footer">Digital Detective V1.6 &nbsp;&middot;&nbsp; Developed by Camilo Mello</div>
+
+  <div class="modal" id="help-modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-help></div>
+    <div class="modal-content" role="dialog" aria-modal="true" aria-label="How To">
+      <div class="modal-header">
+        <div class="modal-title">How To</div>
+        <button class="modal-close" type="button" data-close-help>Close</button>
+      </div>
+      <div class="help-section">
+        <h3>Purpose</h3>
+        <p>Digital Detective v1.6 helps you inspect, capture, and troubleshoot web pages by extracting HTML, generating design system reports, taking screenshots, and identifying scripts.</p>
+      </div>
+      <div class="help-section">
+        <h3>Tools</h3>
+        <ul class="help-list">
+          <li><strong>Screenshot</strong> &mdash; Capture a component, the visible viewport, or the full page.</li>
+          <li><strong>Color Picker</strong> &mdash; Pick a color and copy its HEX value.</li>
+          <li><strong>Element Picker</strong> &mdash; Click any element to copy its outerHTML.</li>
+          <li><strong>Event Tracker</strong> &mdash; Inspect Segment/Rudderstack events fired from the page.</li>
+          <li><strong>Component Blueprinter</strong> &mdash; Paste HTML and generate a structured component report.</li>
+          <li><strong>DS Extractor</strong> &mdash; Generate a design system report for the full page or a selected component.</li>
+          <li><strong>Match Analysis</strong> &mdash; Compare two URLs side by side and get a visual diff report with a match score per category.</li>
+          <li><strong>Lighthouse Audit</strong> &mdash; Run a Google Lighthouse performance report on any public page and view Core Web Vitals, opportunities, and diagnostics.</li>
+          <li><strong>SEO Analysis</strong> &mdash; Audit on-page SEO signals across 5 pillars (indexability, on-page, content quality, semantic SEO, crawlability) and get a failure-first scored report.</li>
+          <li><strong>Script Finder</strong> &mdash; List external scripts, copy their code, and enable/disable them.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
+

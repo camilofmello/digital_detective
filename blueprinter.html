@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Digital Detective — Component Blueprinter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,700,0,0&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F2F5F0;
+      --block: #DEE2E6;
+      --accent: #DD1234;
+      --text: #1c1c1c;
+      --muted: #4a4a4a;
+      --line: #c7ccd1;
+      --radius: 14px;
+      --pad: 16px;
+      --gap: 16px;
+      --font: "Noto Sans", "NotoSans", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+    }
+    .page {
+      max-width: 960px;
+      margin: 24px auto 64px auto;
+      padding: 0 20px;
+    }
+    .app-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .app-header-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+    .app-title-wrap {
+      min-width: 0;
+    }
+    .app-logo {
+      font-family: 'Material Symbols Outlined';
+      font-size: 36px;
+      color: var(--accent);
+      line-height: 1;
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .app-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .app-url {
+      font-size: 11px;
+      color: var(--accent);
+      margin-top: 3px;
+      word-break: break-all;
+      display: block;
+      text-decoration: none;
+    }
+    .app-url:hover { text-decoration: underline; }
+    .app-gen-time {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+    .app-header-btns {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .header-btn {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font);
+      padding: 8px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      flex-shrink: 0;
+      text-transform: none;
+    }
+    .header-btn:hover { background: var(--block); }
+    .header-btn.primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+    }
+    .header-btn.primary:hover { opacity: 0.88; background: var(--accent); }
+    .app-subtitle {
+      margin: 0 0 20px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .debug-panel {
+      display: none;
+    }
+    .debug-panel.is-active {
+      display: none;
+    }
+    .save-btn {
+      white-space: nowrap;
+    }
+    .save-btn[disabled] {
+      background: #b5b8bc;
+      cursor: not-allowed;
+      border: none;
+      color: #fff;
+    }
+    .panel {
+      background: var(--block);
+      border-radius: var(--radius);
+      padding: var(--pad);
+      margin-bottom: 18px;
+    }
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .panel-title {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0;
+    }
+    .panel-collapse-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      border-radius: 999px;
+      width: 24px;
+      height: 24px;
+      font-size: 12px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .panel-collapse-btn:hover { background: var(--block); }
+    .panel.is-collapsed .panel-body { display: none; }
+    .input {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: #ffffff;
+    }
+    .textarea {
+      width: 100%;
+      min-height: 220px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      background: #ffffff;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    .action-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+    .primary-btn {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .step {
+      display: none;
+      animation: slide-in 180ms ease-out;
+    }
+    .step.is-active { display: block; }
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .error {
+      color: var(--accent);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    .help-text {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .grid { display: grid; gap: var(--gap); }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      min-height: 80px;
+    }
+    .card-title {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .edit-btn {
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--accent);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .edit-panel {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+    }
+    .edit-panel.is-active { display: block; }
+    .edit-field {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      background: #ffffff;
+      margin-bottom: 8px;
+    }
+    .edit-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .ghost-btn {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .text-sm {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0;
+    }
+    .chip {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--block);
+      border: 1px solid var(--line);
+      font-size: 11px;
+      margin: 2px 6px 2px 0;
+    }
+    .divider {
+      height: 1px;
+      background: var(--line);
+      margin: 12px 0;
+    }
+    .map {
+      display: grid;
+      gap: var(--gap);
+      grid-template-columns: 1fr;
+    }
+    .map .node {
+      background: var(--bg);
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .node-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 0 0 6px 0;
+    }
+    .node-body {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .asset-list {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .asset {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+      overflow-wrap: anywhere;
+      display: grid;
+      gap: 6px;
+    }
+    .asset-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .asset-url {
+      font-size: 12px;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+    .asset-meta {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .asset-btn {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .preview-holder { width: 100%; }
+    .preview-frame {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      height: auto;
+    }
+    .preview-frame iframe {
+      width: 100%;
+      height: 320px;
+      min-height: 240px;
+      border: 0;
+      display: block;
+    }
+    .preview-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .preview-btn {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .preview-btn-dark {
+      background: #0f0e0b;
+    }
+    .code-block {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      line-height: 1.4;
+      padding: 12px;
+      margin: 0;
+      white-space: pre-wrap;
+      background: #f7f7f7;
+      color: #1c1c1c;
+      height: 100%;
+      overflow: auto;
+    }
+    .preview-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    .mobile-preview-frame {
+      background: #0f0e0b;
+      border: 1px solid #0f0e0b;
+      border-radius: 26px;
+      padding: 10px;
+      max-width: 340px;
+      margin: 0 auto;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    }
+    .mobile-preview-screen {
+      background: #ffffff;
+      border-radius: 18px;
+      overflow: hidden;
+      height: 560px;
+    }
+    .mobile-preview-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+    .grid-row {
+      margin-top: 12px;
+    }
+    .content-summary-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+    .footer-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+    .signature {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .app-footer {
+      margin-top: 24px;
+      background: var(--block);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      display: none;
+    }
+    .app-footer.is-visible {
+      display: block;
+    }
+    .spacing-list {
+      margin: 6px 0 0 16px;
+      padding: 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .spacing-list li {
+      margin: 4px 0;
+      word-break: break-word;
+    }
+    .tracking-list .card {
+      margin-bottom: 10px;
+    }
+    .tracking-list ul {
+      margin: 8px 0 0 16px;
+      padding: 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .debug-panel {
+      display: none;
+      background: #111;
+      color: #e7e7e7;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      margin-bottom: 18px;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow: auto;
+    }
+    .debug-panel.is-active {
+      display: block;
+    }
+    .loading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #ffffff;
+      border-top: 3px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      background: #ffffff;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    .modal.is-open { display: flex; }
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+    }
+    .modal-content {
+      position: relative;
+      width: 92vw;
+      height: 92vh;
+      max-width: 1200px;
+      background: #ffffff;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      z-index: 1;
+    }
+    .modal-content.mobile {
+      width: 420px;
+      max-width: 92vw;
+      height: auto;
+      max-height: 92vh;
+      overflow: auto;
+    }
+    .modal-content.mobile .modal-body {
+      flex: 0 0 auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .modal-close {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .modal-body { flex: 1; }
+    .modal-body iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    @media (min-width: 900px) {
+      .map { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .asset-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="app-header">
+      <div class="app-header-left">
+        <span class="app-logo">keyboard_command_key</span>
+        <div class="app-title-wrap">
+          <h1 class="app-title">Component Blueprinter</h1>
+          <a class="app-url" href="#" target="_blank" rel="noopener noreferrer" data-report-url>—</a>
+          <div class="app-gen-time" data-report-time>Generated: —</div>
+        </div>
+      </div>
+      <div class="app-header-btns">
+        <button class="header-btn" type="button" data-reload>Reload</button>
+        <button class="save-btn header-btn primary" type="button" data-save disabled>SAVE HTML</button>
+      </div>
+    </div>
+    <p class="app-subtitle">Paste a component HTML snippet and generate a visual blueprint.</p>
+
+    <section class="panel step is-active" data-step="url">
+      <h2 class="panel-title">Component Source URL</h2>
+      <input class="input" type="url" placeholder="https://www.example.com/page" data-url />
+      <div class="error" data-url-error></div>
+      <div class="action-row">
+        <button class="primary-btn" type="button" data-url-next>Ok</button>
+      </div>
+    </section>
+
+    <section class="panel step" data-step="html">
+      <h2 class="panel-title">Please Paste the Section's HTML</h2>
+      <textarea class="textarea" placeholder="Paste HTML here" data-html></textarea>
+      <div class="help-text">Example: &lt;div class=&quot;component ...&quot;&gt;...&lt;/div&gt;</div>
+      <div class="error" data-html-error></div>
+      <div class="action-row">
+        <button class="primary-btn" type="button" data-html-next>Ok</button>
+      </div>
+    </section>
+
+    <section class="panel step" data-step="loading">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div>
+          <div class="panel-title" style="margin: 0 0 6px 0;">Generating Blueprint</div>
+          <div class="text-sm">Analyzing structure, assets, and layout...</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="step" data-step="result">
+      <section class="panel">
+        <h2 class="panel-title">Overview</h2>
+        <div class="grid grid-3">
+          <div class="card">
+            <p class="card-title">Component Name (Front-End)</p>
+            <p class="text-sm" data-component-name>—</p>
+          </div>
+          <div class="card">
+            <p class="card-title">Wrapper Classes</p>
+            <p class="text-sm" data-wrapper-classes>—</p>
+          </div>
+          <div class="card">
+            <p class="card-title">Grid</p>
+            <p class="text-sm" data-grid>—</p>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="grid grid-2">
+          <div class="card">
+            <p class="card-title">Variants</p>
+            <p class="text-sm" data-variants>—</p>
+          </div>
+          <div class="card">
+            <p class="card-title">Source URL</p>
+            <p class="text-sm"><a href="#" target="_blank" rel="noopener noreferrer" data-source-url>—</a></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Preview</h2>
+        <div class="preview-holder">
+          <div class="preview-frame">
+            <iframe title="Component preview" data-preview data-frame-id="main-preview" data-auto-height="1" scrolling="no"></iframe>
+          </div>
+          <div class="preview-actions">
+            <button class="preview-btn preview-btn-dark" type="button" data-open-code>View Code</button>
+            <button class="preview-btn" type="button" data-open-preview>Expand preview</button>
+          </div>
+          <p class="preview-note" data-preview-note>Base URL: —</p>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Visual Map</h2>
+        <div class="map">
+          <div class="node">
+            <p class="node-title">Wrapper</p>
+            <div class="node-body" data-wrapper-node>—</div>
+            <div class="divider"></div>
+            <div class="node-body" data-rows>—</div>
+          </div>
+          <div class="node">
+            <p class="node-title">Copy Block</p>
+            <div class="node-body" data-copy-node>—</div>
+            <div class="divider"></div>
+            <p class="node-title">CTA Block</p>
+            <div class="node-body" data-cta-node>—</div>
+          </div>
+          <div class="node">
+            <p class="node-title">Nested Components</p>
+            <div class="node-body" data-nested>—</div>
+          </div>
+          <div class="node">
+            <p class="node-title">Hero / Main Image</p>
+            <div class="node-body" data-hero-image>—</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Content Summary</h2>
+        <div class="grid grid-2">
+          <div class="card">
+            <div class="card-header">
+              <p class="card-title">Headline</p>
+              <button class="edit-btn" type="button" data-edit="headline">Edit</button>
+            </div>
+            <p class="text-sm" data-headline>—</p>
+            <div class="divider"></div>
+            <p class="card-title">Subheadline</p>
+            <p class="text-sm" data-subheadline>—</p>
+            <div class="edit-panel" data-edit-panel="headline">
+              <input class="edit-field" type="text" placeholder="Headline" data-edit-headline />
+              <input class="edit-field" type="text" placeholder="Subheadline" data-edit-subheadline />
+              <div class="edit-actions">
+                <button class="ghost-btn" type="button" data-cancel="headline">Cancel</button>
+                <button class="primary-btn" type="button" data-apply="headline">Apply</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <p class="card-title">Body Copy</p>
+              <button class="edit-btn" type="button" data-edit="body">Edit</button>
+            </div>
+            <p class="text-sm" data-body-copy>—</p>
+            <div class="edit-panel" data-edit-panel="body">
+              <textarea class="edit-field" rows="4" placeholder="Body copy" data-edit-body></textarea>
+              <div class="edit-actions">
+                <button class="ghost-btn" type="button" data-cancel="body">Cancel</button>
+                <button class="primary-btn" type="button" data-apply="body">Apply</button>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <div class="card-header">
+              <p class="card-title">CTAs</p>
+              <button class="edit-btn" type="button" data-edit="cta">Edit</button>
+            </div>
+            <div data-cta-list></div>
+            <div class="edit-panel" data-edit-panel="cta">
+              <div data-cta-editor></div>
+              <div class="edit-actions">
+                <button class="ghost-btn" type="button" data-cancel="cta">Cancel</button>
+                <button class="primary-btn" type="button" data-apply="cta">Apply</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="content-summary-actions">
+          <button class="preview-btn" type="button" data-preview-updated>Preview</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Assets</h2>
+        <div class="asset-list" data-assets></div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Behavior Notes</h2>
+        <div class="grid grid-2">
+          <div class="card">
+            <p class="card-title">Responsive</p>
+            <p class="text-sm" data-responsive>—</p>
+          </div>
+          <div class="card">
+            <p class="card-title">Tracking</p>
+            <p class="text-sm" data-tracking>—</p>
+          </div>
+        </div>
+        <div class="grid grid-2 grid-row">
+          <div class="card">
+            <p class="card-title">Spacing (Padding / Margin)</p>
+            <ul class="spacing-list" data-spacing></ul>
+          </div>
+          <div class="card">
+            <p class="card-title">Mobile Preview</p>
+            <div class="mobile-preview-frame">
+              <div class="mobile-preview-screen">
+                <iframe title="Mobile preview" data-preview-mobile data-frame-id="mobile-preview" scrolling="auto"></iframe>
+              </div>
+            </div>
+            <div class="preview-actions">
+              <button class="preview-btn" type="button" data-open-mobile-preview>Expand preview</button>
+            </div>
+          </div>
+        </div>
+        <p class="footer-note">Note: Sitecore rendering name, datasource, and rendering parameters are not present in the HTML.</p>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Tracking Signals</h2>
+        <div class="tracking-list" data-tracking-signals></div>
+        <p class="footer-note">Actual events are fired by runtime JavaScript. This section only reflects attributes present in the HTML.</p>
+      </section>
+    </section>
+
+    <section class="debug-panel" data-debug></section>
+  </main>
+
+  <footer class="app-footer" data-footer>
+    <span class="signature" data-signature></span>
+  </footer>
+
+  <div class="modal" id="previewModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-content" role="dialog" aria-modal="true" aria-label="Component full preview">
+      <div class="modal-header">
+        <span>Component — full preview</span>
+        <button class="modal-close" type="button" data-close>Close</button>
+      </div>
+      <div class="modal-body">
+        <iframe title="Component full preview" data-preview-modal data-frame-id="main-preview-modal"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="codeModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-code></div>
+    <div class="modal-content" role="dialog" aria-modal="true" aria-label="Component code">
+      <div class="modal-header">
+        <span>Component — code</span>
+        <button class="modal-close" type="button" data-close-code>Close</button>
+      </div>
+      <div class="modal-body">
+        <pre class="code-block" data-code-view></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="previewMobileModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-mobile></div>
+    <div class="modal-content mobile" role="dialog" aria-modal="true" aria-label="Component mobile preview">
+      <div class="modal-header">
+        <span>Component — mobile preview</span>
+        <button class="modal-close" type="button" data-close-mobile>Close</button>
+      </div>
+      <div class="modal-body">
+        <div class="mobile-preview-frame" style="margin: 12px auto;">
+          <div class="mobile-preview-screen" style="height: 680px;">
+            <iframe title="Component mobile preview" data-preview-mobile-modal data-frame-id="mobile-preview-modal" scrolling="auto"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="report_utils.js"></script>
+  <script src="blueprinter.js"></script>
+</body>
+</html>

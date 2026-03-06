@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SEO Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,700,0,0&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F2F5F0;
+      --block: #DEE2E6;
+      --accent: #DD1234;
+      --text: #1c1c1c;
+      --muted: #4a4a4a;
+      --line: #c7ccd1;
+      --radius: 14px;
+      --font: "Noto Sans", sans-serif;
+      --good: #16a34a;
+      --warn: #d97706;
+      --fail: #DD1234;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Loading ── */
+    #seo-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      gap: 16px;
+    }
+    .seo-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--block);
+      border-top: 3px solid var(--accent);
+      border-radius: 50%;
+      animation: seo-spin 0.9s linear infinite;
+    }
+    @keyframes seo-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .seo-loading-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    #seo-status        { font-size: 11px; color: var(--muted); }
+
+    /* ── Error ── */
+    .seo-error {
+      text-align: center;
+      padding: 48px 32px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .seo-error-icon   { font-size: 48px; margin-bottom: 16px; }
+    .seo-error-msg    { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .seo-error-sub    { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+    /* ── Root ── */
+    #seo-root { display: none; max-width: 960px; margin: 0 auto; padding: 24px 20px 64px 20px; }
+
+    /* ── Header ── */
+    .seo-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    .seo-header-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+    .seo-logo {
+      font-family: 'Material Symbols Outlined';
+      font-size: 36px;
+      color: var(--accent);
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .seo-title-wrap { min-width: 0; }
+    .seo-title  { font-size: 22px; font-weight: 700; line-height: 1.2; margin-bottom: 3px; }
+    .seo-url    { font-size: 11px; color: var(--muted); word-break: break-all; display: block; margin-top: 3px; }
+    .seo-url-link {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .seo-url-link:hover { text-decoration: underline; }
+    .seo-gen-time { font-size: 10px; color: var(--muted); margin-top: 5px; }
+    .seo-header-btns { display: flex; gap: 8px; align-items: flex-start; flex-shrink: 0; margin-top: 2px; }
+    .seo-btn {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font);
+      padding: 8px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .seo-btn:hover { background: var(--block); }
+    .seo-btn.primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+    }
+    .seo-btn.primary:hover { opacity: 0.88; background: var(--accent); }
+
+    /* ── Summary Card ── */
+    .seo-summary-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 24px;
+      align-items: center;
+    }
+    .seo-gauge-wrap {
+      position: relative;
+      flex-shrink: 0;
+      width: 100px;
+      height: 100px;
+    }
+    .seo-gauge-svg { width: 100px; height: 100px; }
+    .seo-gauge-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .seo-gauge-num   { font-size: 28px; font-weight: 700; line-height: 1; }
+    .seo-gauge-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .seo-summary-meta { }
+    .seo-grade-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .seo-grade {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .seo-grade-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      color: #fff;
+    }
+    .seo-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .seo-meta-pill {
+      font-size: 11px;
+      background: #f1f5f9;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 10px;
+      color: var(--muted);
+    }
+    .seo-meta-pill strong { color: var(--text); }
+    .seo-summary-counts {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .seo-count-chip {
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      min-width: 110px;
+      text-align: center;
+    }
+    .seo-count-chip.fail { background: #fff0f0; color: var(--fail); border: 1px solid #ffd5d5; }
+    .seo-count-chip.warn { background: #fffbeb; color: var(--warn); border: 1px solid #fde68a; }
+    .seo-count-chip.pass { background: #f0faf5; color: var(--good); border: 1px solid #bbf7d0; }
+
+    /* ── Pillar Scores ── */
+    .seo-pillars-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+    .seo-pillars-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 14px;
+    }
+    .seo-pillar-row {
+      display: grid;
+      grid-template-columns: 170px 1fr 40px;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .seo-pillar-row:last-child { margin-bottom: 0; }
+    .seo-pillar-name { font-size: 12px; color: var(--text); font-weight: 700; }
+    .seo-pillar-track {
+      height: 8px;
+      background: #f1f5f9;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .seo-pillar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+    .seo-pillar-num { font-size: 12px; font-weight: 700; text-align: right; }
+
+    /* ── Section (shared for fail/warn/pass/recs) ── */
+    .seo-section {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .seo-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+      gap: 8px;
+      user-select: none;
+    }
+    .seo-section-head-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .seo-section-icon { font-size: 16px; }
+    .seo-section-title { font-size: 13px; font-weight: 700; }
+    .seo-section-count { font-size: 11px; color: var(--muted); }
+    .seo-section-toggle {
+      font-size: 14px;
+      color: var(--muted);
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .seo-section-body   { padding: 16px 20px; }
+    .seo-collapsed .seo-section-body { display: none; }
+
+    /* ── Critical Issues ── */
+    #seo-critical { display: none; }
+    .seo-critical-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: #fff5f5;
+      border: 1px solid #fecaca;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+    }
+    .seo-critical-item:last-child { margin-bottom: 0; }
+    .seo-critical-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+    .seo-critical-title { font-size: 13px; font-weight: 700; color: #7f1d1d; margin-bottom: 3px; }
+    .seo-critical-desc  { font-size: 11px; color: #991b1b; line-height: 1.4; }
+
+    /* ── Check Items ── */
+    .seo-check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .seo-check-item:last-child { border-bottom: none; }
+    .seo-check-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+    .seo-check-dot.fail { background: var(--fail); }
+    .seo-check-dot.warn { background: var(--warn); }
+    .seo-check-dot.pass { background: var(--good); }
+    .seo-check-body { flex: 1; min-width: 0; }
+    .seo-check-header {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 3px;
+      flex-wrap: wrap;
+    }
+    .seo-check-cat {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: #f1f5f9;
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .seo-check-label { font-size: 12px; font-weight: 700; color: var(--text); }
+    .seo-check-details { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+    /* ── Recommendations ── */
+    .seo-rec-list {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+    .seo-rec-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text);
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+    .seo-rec-num {
+      font-size: 10px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--accent);
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── Passed checks grouped ── */
+    .seo-pass-group { margin-bottom: 14px; }
+    .seo-pass-group:last-child { margin-bottom: 0; }
+    .seo-pass-group-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    /* ── JSON Export ── */
+    .seo-json-pre {
+      font-size: 10px;
+      font-family: monospace;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 16px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 400px;
+      overflow: auto;
+    }
+    .seo-copy-json-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    /* ── Empty state ── */
+    .seo-empty {
+      font-size: 11px;
+      color: var(--muted);
+      font-style: italic;
+      padding: 6px 0;
+    }
+
+    /* ── Success state (no failures) ── */
+    .seo-success-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f0faf5;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+    }
+    .seo-success-icon { font-size: 24px; }
+    .seo-success-title { font-size: 13px; font-weight: 700; color: #166534; margin-bottom: 2px; }
+    .seo-success-sub   { font-size: 11px; color: #166534; opacity: 0.8; }
+
+    /* ── Footer ── */
+    .seo-footer {
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-size: 10px;
+      color: var(--line);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="seo-loading">
+    <div class="seo-spinner"></div>
+    <div class="seo-loading-title">Running SEO Analysis…</div>
+    <div id="seo-status">Analysing page signals…</div>
+  </div>
+
+  <div id="seo-root">
+
+    <!-- Header -->
+    <div class="seo-header">
+      <div class="seo-header-left">
+        <span class="seo-logo">keyboard_command_key</span>
+        <div class="seo-title-wrap">
+          <h1 class="seo-title">SEO Analysis</h1>
+          <a class="seo-url seo-url-link" id="seo-url" href="#" target="_blank" rel="noopener noreferrer">—</a>
+          <div class="seo-gen-time" id="seo-gen-time"></div>
+        </div>
+      </div>
+      <div class="seo-header-btns">
+        <button class="seo-btn" id="seo-reload" type="button">Reload</button>
+        <button class="seo-btn" id="seo-copy-json" type="button">Copy JSON</button>
+        <button class="seo-btn primary" id="seo-save" type="button">SAVE HTML</button>
+      </div>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="seo-summary-card">
+      <div class="seo-gauge-wrap">
+        <svg class="seo-gauge-svg" id="seo-gauge-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="seo-gauge-inner">
+          <div class="seo-gauge-num" id="seo-score-num">—</div>
+          <div class="seo-gauge-label">SEO Score</div>
+        </div>
+      </div>
+      <div class="seo-summary-meta">
+        <div class="seo-grade-row">
+          <div class="seo-grade" id="seo-grade">—</div>
+          <div class="seo-grade-badge" id="seo-grade-badge"></div>
+        </div>
+        <div class="seo-meta-row">
+          <div class="seo-meta-pill"><strong>Page Type:</strong> <span id="seo-page-type">—</span></div>
+          <div class="seo-meta-pill"><strong>Keyword:</strong> <span id="seo-keyword">—</span></div>
+        </div>
+      </div>
+      <div class="seo-summary-counts">
+        <div class="seo-count-chip fail" id="seo-fail-chip">— failures</div>
+        <div class="seo-count-chip warn" id="seo-warn-chip">— warnings</div>
+        <div class="seo-count-chip pass" id="seo-pass-chip">— passed</div>
+      </div>
+    </div>
+
+    <!-- Pillar Scores -->
+    <div class="seo-pillars-card">
+      <div class="seo-pillars-title">Score by Pillar</div>
+      <div id="seo-pillar-bars"></div>
+    </div>
+
+    <!-- Critical Issues -->
+    <div id="seo-critical">
+      <div class="seo-section" style="border-color: #fecaca;">
+        <div class="seo-section-head" id="seo-critical-head">
+          <div class="seo-section-head-left">
+            <span class="seo-section-icon">⚠️</span>
+            <span class="seo-section-title" style="color: var(--fail);">Critical Issues</span>
+            <span class="seo-section-count" id="seo-critical-count"></span>
+          </div>
+        </div>
+        <div class="seo-section-body">
+          <div id="seo-critical-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Banner (shown when no failures) -->
+    <div id="seo-success-banner" style="display:none;" class="seo-success-banner">
+      <div class="seo-success-icon">✅</div>
+      <div>
+        <div class="seo-success-title">No critical failures detected</div>
+        <div class="seo-success-sub">This page passes all major SEO checks. Review warnings below for further improvements.</div>
+      </div>
+    </div>
+
+    <!-- Failed Checks -->
+    <div class="seo-section" id="seo-fail-section">
+      <div class="seo-section-head seo-toggle-head">
+        <div class="seo-section-head-left">
+          <span class="seo-section-icon">🔴</span>
+          <span class="seo-section-title">Failed Checks</span>
+          <span class="seo-section-count" id="seo-fail-count"></span>
+        </div>
+        <button class="seo-section-toggle" type="button">&#9660;</button>
+      </div>
+      <div class="seo-section-body">
+        <div id="seo-fail-list"></div>
+      </div>
+    </div>
+
+    <!-- Warnings -->
+    <div class="seo-section" id="seo-warn-section">
+      <div class="seo-section-head seo-toggle-head">
+        <div class="seo-section-head-left">
+          <span class="seo-section-icon">🟡</span>
+          <span class="seo-section-title">Warnings</span>
+          <span class="seo-section-count" id="seo-warn-count"></span>
+        </div>
+        <button class="seo-section-toggle" type="button">&#9660;</button>
+      </div>
+      <div class="seo-section-body">
+        <div id="seo-warn-list"></div>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="seo-section" id="seo-rec-section">
+      <div class="seo-section-head seo-toggle-head">
+        <div class="seo-section-head-left">
+          <span class="seo-section-icon">💡</span>
+          <span class="seo-section-title">Prioritised Recommendations</span>
+        </div>
+        <button class="seo-section-toggle" type="button">&#9660;</button>
+      </div>
+      <div class="seo-section-body">
+        <ol class="seo-rec-list" id="seo-rec-list"></ol>
+      </div>
+    </div>
+
+    <!-- Passed Checks (collapsed by default) -->
+    <div class="seo-section seo-collapsed" id="seo-pass-section">
+      <div class="seo-section-head seo-toggle-head">
+        <div class="seo-section-head-left">
+          <span class="seo-section-icon">✅</span>
+          <span class="seo-section-title">Passed Checks</span>
+          <span class="seo-section-count" id="seo-pass-count"></span>
+        </div>
+        <button class="seo-section-toggle" type="button">&#9654;</button>
+      </div>
+      <div class="seo-section-body">
+        <div id="seo-pass-list"></div>
+      </div>
+    </div>
+
+    <div class="seo-footer">SEO Analysis &nbsp;&middot;&nbsp; Digital Detective V1.6 &nbsp;&middot;&nbsp; Developed by Camilo Mello</div>
+
+  </div>
+
+  <script src="seo_report.js"></script>
+</body>
+</html>
