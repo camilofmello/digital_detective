@@ -1,10 +1,10 @@
-# Digital Detective
+# Digital Detective 
 
 Chrome extension (Manifest V3) for web intelligence, QA, and frontend diagnostics.
 
 ## Overview
 
-Digital Detective centralizes 10 tools in one plugin UI:
+Digital Detective centralizes 11 tools in one plugin UI:
 
 1. Color Picker
 2. Screenshot
@@ -14,8 +14,9 @@ Digital Detective centralizes 10 tools in one plugin UI:
 6. Match Analysis
 7. Lighthouse Audit
 8. SEO Analysis
-9. Event Tracker
-10. Script Finder
+9. AEO Analysis
+10. Event Tracker
+11. Script Finder
 
 The extension opens interactive panels from the popup and generates visual reports in new tabs.
 
@@ -25,9 +26,10 @@ The extension opens interactive panels from the popup and generates visual repor
 - Tooltip descriptions on hover for each tool button.
 - Inline workflows for DS Extractor and Component Blueprinter.
 - Full-page and scoped Design System reports.
-- SEO report and Lighthouse performance report.
+- SEO, Lighthouse, and AEO analysis reports.
 - Event tracking for Segment/Rudderstack style events.
 - Script discovery, copy, block, and re-enable flow.
+- Shared report design system (tokens and layout) across report pages.
 
 ## Tech Stack
 
@@ -39,7 +41,7 @@ The extension opens interactive panels from the popup and generates visual repor
 ## Project Structure
 
 ```text
-Digital Detective v1.6/
+Digital Detective v1.7/
 |-- manifest.json
 |-- popup.html
 |-- popup.js
@@ -55,10 +57,12 @@ Digital Detective v1.6/
 |-- lighthouse_report.js
 |-- seo_report.html
 |-- seo_report.js
+|-- aeo_report.html
+|-- aeo_report.js
+|-- template_ds.html
 |-- report_utils.js
 |-- report_viewer.html
 |-- report_viewer.js
-|-- reports/
 `-- icons/
 ```
 
@@ -67,7 +71,7 @@ Digital Detective v1.6/
 1. Open `chrome://extensions`.
 2. Enable **Developer mode**.
 3. Click **Load unpacked**.
-4. Select this project folder (`Digital Detective v1.6`).
+4. Select this project folder (`Digital Detective v1.7`).
 5. Pin the extension and open the popup.
 
 ## How To Use
@@ -88,8 +92,10 @@ The extension can generate reports such as:
 - `component-blueprint.html`
 - `seo_report_*.html`
 - `lighthouse_performance_*.html`
+- `aeo_report_*.html`
+- `template_ds.html` (base visual template for report standardization)
 
-Sample generated files are stored in the [`reports/`](./reports) directory.
+Reports are generated on demand and can be saved locally via each report's `SAVE HTML` button.
 
 ## Permissions
 
@@ -107,14 +113,13 @@ From `manifest.json`:
 
 - Reload the extension in `chrome://extensions` after code changes.
 - Keep files in UTF-8 and avoid mixed encodings.
-- Keep UI and report standards consistent with the v1.6 design language.
+- Keep UI and report standards consistent with the v1.7 design language.
 
 ## Version
 
-- Current: **v1.6**
-- Footer standard: `Digital Detective V1.6 - Developed by Camilo Mello`
+- Current: **v1.7**
+- Footer standard: `Digital Detective v1.7 - Developed by Camilo Mello`
 
 ## Author
 
 Camilo Mello camilofmello@gmail.com
-
