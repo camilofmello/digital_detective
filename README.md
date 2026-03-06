@@ -1,4 +1,4 @@
-# Digital Detective v1.6
+# Digital Detective
 
 Chrome extension (Manifest V3) for web intelligence, QA, and frontend diagnostics.
 
