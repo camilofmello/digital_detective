@@ -1,8 +1,27 @@
-# Digital Detective v1.7.2
+# Digital Detective v1.8
 
 Chrome extension (Manifest V3) for web intelligence, QA, and frontend diagnostics.
 
 ## Changelog
+
+### v1.8 — 2026-03-10
+
+**New Feature: Script Match**
+
+- **Script Match tool:** Compare two pages and identify which scripts they have in common. Enter a control page (A) and a new page (B) — the report shows which scripts are matched, which are missing from B, and which are exclusive to B.
+- New button `Script Match` added to the tool grid (icon: `compare_arrows`).
+- New panel with two URL inputs (Control Page A / New Page B) and an Analyse button.
+- Opens `script_match.html` as a full report page in a new tab.
+- **Matching strategy:** two-pass comparison — exact URL match first, then soft match by filename (detects same library loaded from different CDNs or versions).
+- **Report sections:**
+  - Score card with Jaccard similarity score and summary stats.
+  - Common Scripts — scripts present in both pages.
+  - Missing from B — scripts in A not found in B.
+  - Extra in B — scripts in B not present in A.
+- Vendor/library detection for 100+ known scripts (Google Analytics, GTM, jQuery, React, Vue, Stripe, Hotjar, Segment, HubSpot, Sentry, etc.).
+- Collapsible blocks and Save Report button consistent with the standard report design.
+
+---
 
 ### v1.7.2 — 2026-03-08
 
@@ -18,7 +37,7 @@ Chrome extension (Manifest V3) for web intelligence, QA, and frontend diagnostic
 
 ## Overview
 
-Digital Detective centralizes 11 tools in one plugin UI:
+Digital Detective centralizes 12 tools in one plugin UI:
 
 1. Color Picker
 2. Screenshot
@@ -31,6 +50,7 @@ Digital Detective centralizes 11 tools in one plugin UI:
 9. AEO Analysis
 10. Event Tracker
 11. Script Finder
+12. **Script Match** *(new in v1.8)*
 
 The extension opens interactive panels from the popup and generates visual reports in new tabs.
 
@@ -43,6 +63,7 @@ The extension opens interactive panels from the popup and generates visual repor
 - SEO, Lighthouse, and AEO analysis reports.
 - Event tracking for Segment/Rudderstack style events.
 - Script discovery, copy, block, and re-enable flow.
+- Script comparison between two pages with match scoring and vendor detection.
 - Shared report design system (tokens and layout) across report pages.
 
 ## Tech Stack
@@ -55,7 +76,7 @@ The extension opens interactive panels from the popup and generates visual repor
 ## Project Structure
 
 ```text
-Digital Detective v1.7.2/
+Digital Detective v1.8/
 |-- manifest.json
 |-- popup.html
 |-- popup.js
@@ -67,6 +88,8 @@ Digital Detective v1.7.2/
 |-- ds_extractor.js
 |-- match_analysis.html
 |-- match_analysis.js
+|-- script_match.html       ← new
+|-- script_match.js         ← new
 |-- lighthouse_report.html
 |-- lighthouse_report.js
 |-- seo_report.html
@@ -85,7 +108,7 @@ Digital Detective v1.7.2/
 1. Open `chrome://extensions`.
 2. Enable **Developer mode**.
 3. Click **Load unpacked**.
-4. Select this project folder (`Digital Detective v1.7.2`).
+4. Select this project folder (`Digital Detective v1.8`).
 5. Pin the extension and open the popup.
 
 ## How To Use
@@ -106,6 +129,7 @@ The extension can generate reports such as:
 - `seo_report_*.html`
 - `lighthouse_performance_*.html`
 - `aeo_report_*.html`
+- `*_X_*_Script_Match_Report_*.html`
 - `template_ds.html` (base visual template for report standardization)
 
 Reports are generated on demand and can be saved locally via each report's `SAVE HTML` button.
@@ -126,12 +150,12 @@ From `manifest.json`:
 
 - Reload the extension in `chrome://extensions` after code changes.
 - Keep files in UTF-8 and avoid mixed encodings.
-- Keep UI and report standards consistent with the v1.7 design language.
+- Keep UI and report standards consistent with the v1.8 design language.
 
 ## Version
 
-- Current: **v1.7.2**
-- Footer standard: `Digital Detective v1.7.2 - Developed by Camilo Mello`
+- Current: **v1.8**
+- Footer standard: `Digital Detective v1.8 - Developed by Camilo Mello`
 
 ## Author
 
