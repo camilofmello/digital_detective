@@ -1,43 +1,43 @@
-# Digital Detective v1.8
+# Digital Detective v2.0.11
 
 Chrome extension (Manifest V3) for web intelligence, QA, and frontend diagnostics.
 
 ## Changelog
 
-### v1.8 — 2026-03-10
+### v2.0.11 - 2026-03-23
+
+**QA Scan and documentation alignment**
+
+- Added `QA Scan`, a deterministic page QA audit for broken assets, JavaScript/load errors, suspicious forms and links, and safe interaction smoke checks.
+- Added `qa_report.html` and `qa_report.js`.
+- Added sticky clickable summary cards in the QA report.
+- Improved QA wording so sections explain checked, passed, fails, and result more clearly.
+- Standardized visible versioning to `2.0.11`.
+- Cleaned and aligned this `README.md` with the current build.
+
+### v2.0.3 - 2026-03-10
 
 **New Feature: Script Match**
 
-- **Script Match tool:** Compare two pages and identify which scripts they have in common. Enter a control page (A) and a new page (B) — the report shows which scripts are matched, which are missing from B, and which are exclusive to B.
-- New button `Script Match` added to the tool grid (icon: `compare_arrows`).
-- New panel with two URL inputs (Control Page A / New Page B) and an Analyse button.
-- Opens `script_match.html` as a full report page in a new tab.
-- **Matching strategy:** two-pass comparison — exact URL match first, then soft match by filename (detects same library loaded from different CDNs or versions).
-- **Report sections:**
-  - Score card with Jaccard similarity score and summary stats.
-  - Common Scripts — scripts present in both pages.
-  - Missing from B — scripts in A not found in B.
-  - Extra in B — scripts in B not present in A.
-- Vendor/library detection for 100+ known scripts (Google Analytics, GTM, jQuery, React, Vue, Stripe, Hotjar, Segment, HubSpot, Sentry, etc.).
-- Collapsible blocks and Save Report button consistent with the standard report design.
+- Added `Script Match` to compare two pages and identify common scripts, scripts missing from page B, and scripts exclusive to page B.
+- Added a new `Script Match` button to the popup tool grid.
+- Added a dedicated full report page via `script_match.html`.
+- Implemented a two-pass matching strategy: exact URL match first, then soft match by filename.
+- Added vendor/library detection for common third-party scripts.
 
----
+### v2.0.2 - 2026-03-08
 
-### v1.7.2 — 2026-03-08
+**Bug fixes and improvements**
 
-**Bug Fixes & Improvements**
-
-- **Color Picker — EyeDropper AbortError fix:** `EyeDropper.open()` was aborting immediately because DOM mutations (`display: none`) were being applied before calling `open()`, consuming the browser's user activation. Fixed by calling `open()` as the very first operation inside the click handler, before any DOM changes.
-- **Color Picker — Streamlined flow:** Eliminated the intermediate sub-panel step. Clicking "Color Picker" in the grid now directly triggers the overlay on the page (2 fewer clicks). Flow: grid button → black 20% overlay with red "CLICK TO ACTIVATE MAGNIFIER" button → native EyeDropper with magnifier → color copied.
-- **Color Picker — CSS fallback fix:** `rgbStringToHex` regex updated from `rgba\(` to `rgba?\(` to correctly parse both `rgb()` and `rgba()` values returned by `getComputedStyle`. Added DOM traversal to find the nearest non-transparent background when the clicked element has no background color.
-- **Screenshot — "Open after capture" toggle:** New checkbox in the Screenshot panel. When enabled, captured screenshots automatically open in a new browser tab.
-- **Element Picker — XPath mode:** Added "Element XPath" button alongside "Element HTML". Activates a picker that copies the XPath of the clicked element, with a confirmation toast.
-
----
+- Fixed `Color Picker` user-activation timing for `EyeDropper.open()`.
+- Simplified the `Color Picker` flow to reduce clicks.
+- Fixed RGB/RGBA parsing fallback in the color conversion logic.
+- Added `Open after capture` toggle to `Screenshot`.
+- Added `Element XPath` mode to `Element Picker`.
 
 ## Overview
 
-Digital Detective centralizes 12 tools in one plugin UI:
+Digital Detective centralizes 15 tools in one plugin UI:
 
 1. Color Picker
 2. Screenshot
@@ -48,23 +48,28 @@ Digital Detective centralizes 12 tools in one plugin UI:
 7. Lighthouse Audit
 8. SEO Analysis
 9. AEO Analysis
-10. Event Tracker
-11. Script Finder
-12. **Script Match** *(new in v1.8)*
+10. QA Scan
+11. Event Tracker
+12. Script Finder
+13. Script Match
+14. Static Builder
+15. Quick Updater
 
 The extension opens interactive panels from the popup and generates visual reports in new tabs.
 
 ## Main Features
 
-- Unified popup with 2-column tool grid and expand/collapse behavior.
+- Unified popup with a tool grid and inline workflow panels.
 - Tooltip descriptions on hover for each tool button.
-- Inline workflows for DS Extractor and Component Blueprinter.
 - Full-page and scoped Design System reports.
-- SEO, Lighthouse, and AEO analysis reports.
-- Event tracking for Segment/Rudderstack style events.
+- Component blueprint generation from pasted HTML.
+- Side-by-side match analysis for two URLs.
+- Lighthouse, SEO, and AEO audit reports.
+- QA scan for assets, JS/load errors, forms, links, and safe click smoke tests.
+- Event inspection for Segment/Rudderstack-style payloads.
 - Script discovery, copy, block, and re-enable flow.
-- Script comparison between two pages with match scoring and vendor detection.
-- Shared report design system (tokens and layout) across report pages.
+- Static page generation with CSS inlining and absolute URL rewriting.
+- Local HTML updating with side-by-side comparison and save flow.
 
 ## Tech Stack
 
@@ -76,7 +81,7 @@ The extension opens interactive panels from the popup and generates visual repor
 ## Project Structure
 
 ```text
-Digital Detective v1.8/
+Digital Detective v2.0/
 |-- manifest.json
 |-- popup.html
 |-- popup.js
@@ -88,14 +93,20 @@ Digital Detective v1.8/
 |-- ds_extractor.js
 |-- match_analysis.html
 |-- match_analysis.js
-|-- script_match.html       ← new
-|-- script_match.js         ← new
 |-- lighthouse_report.html
 |-- lighthouse_report.js
 |-- seo_report.html
 |-- seo_report.js
 |-- aeo_report.html
 |-- aeo_report.js
+|-- qa_report.html
+|-- qa_report.js
+|-- script_match.html
+|-- script_match.js
+|-- static_builder.html
+|-- static_builder.js
+|-- quick_updater.html
+|-- quick_updater.js
 |-- template_ds.html
 |-- report_utils.js
 |-- report_viewer.html
@@ -108,12 +119,12 @@ Digital Detective v1.8/
 1. Open `chrome://extensions`.
 2. Enable **Developer mode**.
 3. Click **Load unpacked**.
-4. Select this project folder (`Digital Detective v1.8`).
+4. Select this project folder: `Digital Detective v2.0`.
 5. Pin the extension and open the popup.
 
 ## How To Use
 
-1. Open any HTTP/HTTPS page.
+1. Open any HTTP or HTTPS page.
 2. Click the extension icon.
 3. Hover a tool to see its description.
 4. Click a tool button to run it directly or expand its panel.
@@ -129,8 +140,9 @@ The extension can generate reports such as:
 - `seo_report_*.html`
 - `lighthouse_performance_*.html`
 - `aeo_report_*.html`
-- `*_X_*_Script_Match_Report_*.html`
-- `template_ds.html` (base visual template for report standardization)
+- `qa_report.html`
+- `*_Script_Match_Report_*.html`
+- `template_ds.html`
 
 Reports are generated on demand and can be saved locally via each report's `SAVE HTML` button.
 
@@ -142,21 +154,25 @@ From `manifest.json`:
 - `scripting`: inject or execute scripts when needed.
 - `downloads`: save generated files.
 - `storage`: persist plugin settings and cached data.
-- `tabs`: read active tab URL and open report tabs.
-- `declarativeNetRequest`: script blocking/unblocking flows.
-- `host_permissions` (`http://*/*`, `https://*/*`): inspect regular web pages.
+- `tabs`: read the active tab URL and open report tabs.
+- `declarativeNetRequest`: support script blocking and request rules.
+- `declarativeNetRequestWithHostAccess`: support host-aware request rules.
+- `host_permissions` (`http://*/*`, `https://*/*`, `file://*/*`): inspect web pages and local files when allowed.
 
 ## Development Notes
 
 - Reload the extension in `chrome://extensions` after code changes.
 - Keep files in UTF-8 and avoid mixed encodings.
-- Keep UI and report standards consistent with the v1.8 design language.
+- Keep UI and report standards consistent with the `2.0.11` build.
+- Update versioning in code and visible plugin surfaces on every relevant release.
 
 ## Version
 
-- Current: **v1.8**
-- Footer standard: `Digital Detective v1.8 - Developed by Camilo Mello`
+- Current: **v2.0.11**
+- Version format: `major.minor.patch`
+- Footer standard: `Digital Detective v2.0.11 - Developed by Camilo Mello`
 
 ## Author
 
-Camilo Mello camilofmello@gmail.com
+Camilo Mello  
+camilofmello@gmail.com
