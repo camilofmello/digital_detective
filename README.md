@@ -172,9 +172,9 @@ From `manifest.json`:
 
 ## Version
 
-- Current: **v2.0.11**
+- Current: **v2.1**
 - Version format: `major.minor.patch`
-- Footer standard: `Digital Detective v2.0.11 - Developed by Camilo Mello`
+- Footer standard: `Digital Detective v2.1 - Developed by Camilo Mello`
 
 ## Author
 
