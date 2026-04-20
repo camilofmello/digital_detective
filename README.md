@@ -1,8 +1,12 @@
-# Digital Detective v2.0.11
+# Digital Detective v2.1
 
 Chrome extension (Manifest V3) for web intelligence, QA, and frontend diagnostics.
 
 ## Changelog
+
+### v2.0.11 - 2026-03-23
+
+- Screenshot issue fixed.
 
 ### v2.0.11 - 2026-03-23
 
