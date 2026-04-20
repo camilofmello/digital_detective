@@ -4,7 +4,7 @@ Chrome extension (Manifest V3) for web intelligence, QA, and frontend diagnostic
 
 ## Changelog
 
-### v2.0.11 - 2026-03-23
+### v2.1 - 2026-04-20
 
 - Screenshot issue fixed.
 
